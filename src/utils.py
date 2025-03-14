@@ -11,11 +11,13 @@ import io
 
 # Authenticate and Load .env Variables
 def authenticate_and_load_env():
+    auth.authenticate_user()  # <-- Added for stable authentication
     load_dotenv()
     creds, _ = default()
     service = build('drive', 'v3', credentials=creds)
     print("✅ Google Drive API authenticated successfully!")
     return service
+
 # Test to see if it's saving.
 # Load Data from Google Drive
 def load_data_from_drive(service, file_id):  # This version expects **two arguments**
