@@ -5,47 +5,33 @@ from google.colab import auth
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
 from dotenv import load_dotenv
+from google.auth import default
 import io
 
 
-# Authenticate and load environment variables
+# Authenticate and Load .env Variables
 def authenticate_and_load_env():
-    """
-    Authenticate Google Colab with Google Drive and load .env variables.
-    """
-    auth.authenticate_user()
+    auth.authenticate_user()  # <-- Added for stable authentication
     load_dotenv()
+    creds, _ = default()
+    service = build('drive', 'v3', credentials=creds)
+    print("✅ Google Drive API authenticated successfully!")
+    return service
 
-
-# Google Drive Data Loader
-def load_data_from_drive(file_id):
-    """
-    Load data directly from Google Drive using file_id.
-
-    Parameters:
-    - file_id (str): Google Drive file ID.
-
-    Returns:
-    - DataFrame: Loaded data as a pandas DataFrame.
-    """
+# Test to see if it's saving.
+# Load Data from Google Drive
+def load_data_from_drive(service, file_id):  # This version expects **two arguments**
     try:
-        from googleapiclient.http import MediaIoBaseDownload
-        from googleapiclient.discovery import build
-        import io
-
-        drive_service = build('drive', 'v3')
-        request = drive_service.files().get_media(fileId=file_id)
-        file = io.BytesIO()
-        downloader = MediaIoBaseDownload(file, request)
+        request = service.files().get_media(fileId=file_id)
+        file_content = io.BytesIO()
+        downloader = MediaIoBaseDownload(file_content, request)
 
         done = False
         while not done:
-            _, done = downloader.next_chunk()
+            status, done = downloader.next_chunk()
 
-        file.seek(0)
-        data = pd.read_csv(file)
-        print("✅ Data successfully loaded from Google Drive.")
-        return data
+        file_content.seek(0)
+        return pd.read_csv(file_content)
 
     except Exception as e:
         print(f"❌ Error loading data: {e}")
