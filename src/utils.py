@@ -16,7 +16,7 @@ def authenticate_and_load_env():
     service = build('drive', 'v3', credentials=creds)
     print("✅ Google Drive API authenticated successfully!")
     return service
-# Test to see if it's saving.
+# Test to see if it's saving
 # Load Data from Google Drive
 def load_data_from_drive(service, file_id):  # This version expects **two arguments**
     try:
